@@ -35,8 +35,13 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
     - name: Run unit tests
+      env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
           cd $(pwd)/src
+          python -m unittest discover
           pytest --cov=src tests/
 
     - name: Check for security vulnerabilities
