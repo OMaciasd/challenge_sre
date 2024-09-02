@@ -13,9 +13,6 @@ class DevelopmentConfig(Config):
     DEBUG = True
     RABBITMQ_URI = os.getenv('DEVELOPMENT_RABBITMQ_URI', 'dev-rabbitmq-uri')
     DATABASE_URL = os.getenv('DEVELOPMENT_DATABASE_URL', 'dev-database-url')
-    print(f"Development RABBITMQ_URI: {RABBITMQ_URI}")
-    print(f"Development DATABASE_URL: {DATABASE_URL}")
-
 
 class TestingConfig(Config):
     """Testing configuration."""
