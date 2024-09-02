@@ -49,4 +49,4 @@ def consume_log(
     channel.start_consuming()
 
 
-consume_logs()
+consume_log()
