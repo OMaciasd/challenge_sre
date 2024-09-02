@@ -9,6 +9,10 @@ app = Flask(__name__)
 def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     app_config = config_by_name.get(env, config_by_name['development'])
+    print(f"Loaded configuration for {env}:")
+    print(f"SECRET_KEY: {app_config.SECRET_KEY}")
+    print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
+    print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     return app_config
 
 app_config = load_config()
