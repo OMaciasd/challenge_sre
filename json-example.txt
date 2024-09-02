@@ -1,0 +1,5 @@
+{
+  "name": "name",
+  "mail": "example@mail.com",
+  "github_url": "https://github.com/user/repo.git"
+}

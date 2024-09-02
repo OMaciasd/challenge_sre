@@ -1,0 +1,5 @@
+sum(rate(http_requests_total[1m])) by (instance)
+http_requests_total{instance="python-microservice:5000"}
+http_requests_total
+sum(http_requests_total) by (instance)
+rate(http_requests_total[1m])

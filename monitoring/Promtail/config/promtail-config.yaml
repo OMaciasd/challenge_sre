@@ -1,0 +1,38 @@
+server:
+  log_level: info
+  http_listen_port: 9080
+  grpc_listen_port: 4343
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+- url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+- job_name: varlogs
+  static_configs:
+  - targets:
+    - localhost
+    labels:
+      job: varlogs
+      __path__: /var/log/archivo.log
+      environment: production
+
+- job_name: grafana
+  static_configs:
+  - targets:
+    - localhost
+    labels:
+      job: grafana
+      __path__: /mnt/logs/grafana/*.log
+
+- job_name: python
+  static_configs:
+  - targets:
+    - localhost
+    labels:
+      job: python
+      host: python
+      __path__: /app/archivo.log
+      environment: production
