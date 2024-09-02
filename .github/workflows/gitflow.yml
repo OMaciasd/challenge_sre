@@ -34,11 +34,17 @@ jobs:
         pip install flake8
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-    - name: Run unit tests
+    - name: Print environment variables
+      run: |
+        echo "SECRET_KEY=${SECRET_KEY}"
+        echo "RABBITMQ_URI=${RABBITMQ_URI}"
+        echo "DATABASE_URL=${DATABASE_URL}"
       env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    - name: Run unit tests
       run: |
           cd $(pwd)/src
           python -m unittest discover
