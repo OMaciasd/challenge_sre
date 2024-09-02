@@ -1,7 +1,7 @@
 import pika
 
 
-def publish_logging(
+def publish_log(
         message
 ):
     connection = pika.BlockingConnection(
