@@ -48,7 +48,13 @@
 
 - The solution is organized using the **GitFlow** workflow, which facilitates structured development and integration.
 
-![alt text](assets/images/git.png)
+![fetch](../assets/images/git/git-fetch.png)
+
+![gitflow](../assets/images/git/git.png)
+
+![flow](../assets/images/git/git-flow.png)
+
+![push](../assets/images/git/git-push.png)
 
 ## 🔍 **Testing and Verification**
 

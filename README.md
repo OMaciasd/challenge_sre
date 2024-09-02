@@ -18,7 +18,7 @@
 
 - To demonstrate that the POST request to the endpoint was successfully made, a Python script **`api.py`** was executed to send the specified data. Below is the output from the request:
 
-![alt text][json]
+![json][json]
 
 - This snapshot demonstrates how to send a POST request to the endpoint and verify the response. The response confirms that the request was received and processed successfully.
 
@@ -64,9 +64,11 @@ Before you begin, make sure you have the following installed:
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/OMaciasd/tu_latam-challenge
+git clone --single-branch --branch develop --recursive --depth=1 https://github.com/OMaciasd/challenge_sre.git
 
-cd tu_latam-challenge
+cd challenge_sre
+
+  ![Clone](docs/assets/images/git/git-clone.png)
 
 ```
 
