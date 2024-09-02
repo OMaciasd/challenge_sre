@@ -6,22 +6,17 @@ from config import config_by_name
 
 app = Flask(__name__)
 
-
 def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     app_config = config_by_name.get(env, config_by_name['development'])
     return app_config
 
-
 app_config = load_config()
-
 
 def initialize_rabbitmq():
     try:
         connection = pika.BlockingConnection(
-            pika.URLParameters(
-                app_config.RABBITMQ_URI
-            )
+            pika.URLParameters(app_config.RABBITMQ_URI)
         )
         channel = connection.channel()
         channel.queue_declare(queue='data_queue')
@@ -29,7 +24,6 @@ def initialize_rabbitmq():
     except Exception as e:
         print(f"Error connecting to RabbitMQ: {e}")
         return None, None
-
 
 def initialize_database():
     try:
@@ -41,7 +35,6 @@ def initialize_database():
         print(f"Error connecting to the database: {e}")
         return None
 
-
 connection, channel = initialize_rabbitmq()
 engine = initialize_database()
 
@@ -50,29 +43,27 @@ if connection is None or engine is None:
     connection, channel = initialize_rabbitmq()
     engine = initialize_database()
 
-
 @app.route('/')
 def homepage():
     return "Hello, World!"
 
-
 @app.route('/log', methods=['POST'])
 def log_data():
+    """Publica un mensaje en RabbitMQ."""
     log_message = request.json.get('message', '')
     if channel:
         channel.basic_publish(exchange='',
                               routing_key='data_queue',
                               body=log_message)
-        return jsonify(
-            {
-                'status': 'success',
-                'message': 'Log sent to RabbitMQ'
-            }
-        )
+        return jsonify({
+            'status': 'success',
+            'message': 'Log sent to RabbitMQ'
+        })
     else:
-        return jsonify(
-            {
-                'status': 'error',
-                'message': 'RabbitMQ connection not available'
-            }
-        )
+        return jsonify({
+            'status': 'error',
+            'message': 'RabbitMQ connection not available'
+        })
+
+if __name__ == '__main__':
+    app.run()
