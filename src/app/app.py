@@ -10,7 +10,7 @@ def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     print(f"Loading configuration for environment: {env}")
     app_config_class = config_by_name.get(env, config_by_name['development'])
-    app_config = app_config_class()
+    app_config = app_config_class
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
     print(f"DATABASE_URL: {app_config.DATABASE_URL}")
