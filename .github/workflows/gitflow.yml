@@ -14,10 +14,6 @@ jobs:
   validate:
     runs-on: ubuntu-latest
 
-    env:
-      FLASK_ENV: development
-      RABBITMQ_URI: your-rabbitmq-uri
-      DATABASE_URL: your-database-url
 
     steps:
     - name: Checkout code
@@ -45,6 +41,7 @@ jobs:
         echo "RABBITMQ_URI=${RABBITMQ_URI}"
         echo "DATABASE_URL=${DATABASE_URL}"
       env:
+        FLASK_ENV: development
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
