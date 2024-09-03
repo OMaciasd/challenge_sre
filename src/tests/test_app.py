@@ -10,8 +10,8 @@ class FlaskAppTests(unittest.TestCase):
 
         with app.test_client() as client:
             response = client.get('/')
-            assert response.status_code == 200
-            assert response.data == b'Hello, World!'
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b'Hello, World!')
 
 if __name__ == '__main__':
     unittest.main()
