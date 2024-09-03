@@ -10,6 +10,8 @@ def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     print(f"Loading configuration for environment: {env}")
     app_config_class = config_by_name.get(env, config_by_name['development'])
+    if not callable(app_config_class):
+        raise TypeError(f"{app_config_class} is not callable")
     app_config = app_config_class()  # Crear una instancia de la configuración
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
@@ -46,7 +48,7 @@ engine = initialize_database()
 
 if connection is None or engine is None:
     print("Switching to local configuration due to initialization failure.")
-    app_config = config_by_name['local']
+    app_config = config_by_name['local']()
     app.config.from_object(app_config)  # Vuelve a asignar la configuración local si falla
     connection, channel = initialize_rabbitmq()
     engine = initialize_database()
