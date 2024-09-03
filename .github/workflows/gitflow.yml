@@ -35,12 +35,12 @@ jobs:
 
     - name: Print environment variables
       run: |
-        echo "RABBITMQ_URI=${RABBITMQ_URI}"
-        echo "DATABASE_URL=${DATABASE_URL}"
+        echo "RABBITMQ_URI=${DEVELOPMENT_RABBITMQ_URI}"
+        echo "DATABASE_URL=${DEVELOPMENT_DATABASE_URL}"
       env:
         FLASK_ENV: development
-        RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        RABBITMQ_URI: ${{ secrets.DEVELOPMENT_RABBITMQ_URI }}
+        DATABASE_URL: ${{ secrets.DEVELOPMENT_DATABASE_URL }}
 
 
     - name: Run unit tests
