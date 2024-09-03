@@ -17,7 +17,6 @@ def load_config():
     if not isinstance(app_config, Config):
         raise TypeError(f"{app_config} is not an instance of Config")
     
-    print(f"SECRET_KEY: {app_config.SECRET_KEY}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
     print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     return app_config
