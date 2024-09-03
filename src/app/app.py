@@ -8,18 +8,17 @@ app = Flask(__name__)
 
 def load_config():
     env = os.getenv('FLASK_ENV', 'development')
-    print(f"Loading configuration for environment: {env}")
-    
-    # Obtener la instancia de configuración según el entorno
     app_config = config_by_name.get(env, config_by_name['development'])
     
-    # Verificar que sea una instancia de Config
     if not isinstance(app_config, Config):
         raise TypeError(f"{app_config} is not an instance of Config")
+
+    print(f"Config class: {app_config}")
+    print(f"RABBITMQ_URI: {app_config.DEVELOPMENT_RABBITMQ_URI}")
+    print(f"DATABASE_URL: {app_config.DEVELOPMENT_DATABASE_URL}")
     
-    print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
-    print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     return app_config
+
     
 app_config = load_config()
 app.config.from_object(app_config)
@@ -51,8 +50,8 @@ engine = initialize_database()
 
 if connection is None or engine is None:
     print("Switching to local configuration due to initialization failure.")
-    app_config = config_by_name['local']()  # Asegúrate de crear una instancia
-    app.config.from_object(app_config)  # Vuelve a asignar la configuración local si falla
+    app_config = config_by_name['local']()
+    app.config.from_object(app_config)
     connection, channel = initialize_rabbitmq()
     engine = initialize_database()
 
