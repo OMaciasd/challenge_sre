@@ -16,8 +16,8 @@ def load_config():
     print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     return app_config
 
-
 app_config = load_config()
+app.config.from_object(app_config)  # Asigna la configuración a la aplicación Flask
 
 def initialize_rabbitmq():
     try:
@@ -45,7 +45,9 @@ connection, channel = initialize_rabbitmq()
 engine = initialize_database()
 
 if connection is None or engine is None:
+    print("Switching to local configuration due to initialization failure.")
     app_config = config_by_name['local']
+    app.config.from_object(app_config)  # Vuelve a asignar la configuración local si falla
     connection, channel = initialize_rabbitmq()
     engine = initialize_database()
 
