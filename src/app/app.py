@@ -10,9 +10,10 @@ def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     print(f"Loading configuration for environment: {env}")
     
-    # Asegúrate de obtener una clase y no una instancia
+    # Obtener la clase de configuración según el entorno
     app_config_class = config_by_name.get(env, config_by_name['development'])
     
+    # Verificar que sea una clase callable
     if not callable(app_config_class):
         raise TypeError(f"{app_config_class} is not a callable class")
     
