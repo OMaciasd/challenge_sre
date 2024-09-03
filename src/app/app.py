@@ -10,14 +10,12 @@ def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     print(f"Loading configuration for environment: {env}")
     
-    app_config_class = config_by_name.get(env, config_by_name['development'])
+    # Obtener la instancia de configuración según el entorno
+    app_config = config_by_name.get(env, config_by_name['development'])
     
-    if not issubclass(app_config_class, Config):
-        raise TypeError(f"{app_config_class} is not a subclass of Config")
-    
-    app_config = app_config_class()
-    if not app_config:
-        raise ValueError("Failed to load configuration")
+    # Verificar que sea una instancia de Config
+    if not isinstance(app_config, Config):
+        raise TypeError(f"{app_config} is not an instance of Config")
     
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
