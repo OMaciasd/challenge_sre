@@ -10,21 +10,22 @@ def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     print(f"Loading configuration for environment: {env}")
     
-    # Obtener la clase de configuración según el entorno
     app_config_class = config_by_name.get(env, config_by_name['development'])
     
-    # Verificar que sea una clase
-    if not isinstance(app_config_class, type) or not issubclass(app_config_class, Config):
+    if not issubclass(app_config_class, Config):
         raise TypeError(f"{app_config_class} is not a subclass of Config")
     
-    app_config = app_config_class()  # Crear una instancia de la configuración
+    app_config = app_config_class()
+    if not app_config:
+        raise ValueError("Failed to load configuration")
+    
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
     print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     return app_config
-
+    
 app_config = load_config()
-app.config.from_object(app_config)  # Asigna la configuración a la aplicación Flask
+app.config.from_object(app_config)
 
 def initialize_rabbitmq():
     try:
