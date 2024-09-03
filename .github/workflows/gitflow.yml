@@ -39,9 +39,9 @@ jobs:
         echo "DATABASE_URL=${DATABASE_URL}"
       env:
         FLASK_ENV: development
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
         RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
 
     - name: Run unit tests
       run: |
