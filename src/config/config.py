@@ -4,7 +4,6 @@ class Config:
     """Base configuration."""
     DEBUG = os.getenv('DEBUG', 'False') == 'True'
     TESTING = False
-    SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     RABBITMQ_URI = os.getenv('RABBITMQ_URI', 'default-rabbitmq-uri')
     DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/mydatabase')
 
