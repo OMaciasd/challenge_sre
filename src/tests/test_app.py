@@ -1,17 +1,19 @@
 import unittest
-from unittest.mock import patch
-from app.app import app
+from app import app
 
-class FlaskAppTests(unittest.TestCase):
-    
-    @patch('app.app.initialize_rabbitmq')
-    def test_homepage(self, mock_initialize_rabbitmq):
-        mock_initialize_rabbitmq.return_value = (None, None)
+class AppTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+        self.app.config['TESTING'] = True
 
-        with app.test_client() as client:
-            response = client.get('/')
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'Hello, World!')
+    def test_homepage(self):
+        response = self.app.get('/')
+        self.assertEqual(response.data, b"Hello, World!")
+
+    def test_log_data(self):
+        response = self.app.post('/log', json={'message': 'Test log'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Log sent to RabbitMQ', response.data)
 
 if __name__ == '__main__':
     unittest.main()
