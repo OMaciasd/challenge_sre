@@ -9,9 +9,13 @@ app = Flask(__name__)
 def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     print(f"Loading configuration for environment: {env}")
+    
+    # Asegúrate de obtener una clase y no una instancia
     app_config_class = config_by_name.get(env, config_by_name['development'])
-    if not isinstance(app_config_class, type):
-        raise TypeError(f"{app_config_class} is not a class")
+    
+    if not callable(app_config_class):
+        raise TypeError(f"{app_config_class} is not a callable class")
+    
     app_config = app_config_class()  # Crear una instancia de la configuración
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
