@@ -13,9 +13,9 @@ def load_config():
     # Obtener la clase de configuración según el entorno
     app_config_class = config_by_name.get(env, config_by_name['development'])
     
-    # Verificar que sea una clase callable
-    if not callable(app_config_class):
-        raise TypeError(f"{app_config_class} is not a callable class")
+    # Verificar que sea una clase
+    if not isinstance(app_config_class, type):
+        raise TypeError(f"{app_config_class} is not a class")
     
     app_config = app_config_class()  # Crear una instancia de la configuración
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
