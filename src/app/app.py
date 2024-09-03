@@ -9,16 +9,19 @@ app = Flask(__name__)
 
 def load_config():
     env = os.getenv('FLASK_ENV', 'development')
-    app_config = config_by_name.get(env, config_by_name['development'])
+    app_config_class = config_by_name.get(env, config_by_name['development'])
     
-    if not isinstance(app_config, Config):
-        raise TypeError(f"{app_config} is not an instance of Config")
+    if not issubclass(app_config_class, Config):
+        raise TypeError(f"{app_config_class} is not a subclass of Config")
 
+    app_config = app_config_class()
+    
     print(f"Config class: {app_config}")
     print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
     print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     
     return app_config
+
 
 app_config = load_config()
 app.config.from_object(app_config)
