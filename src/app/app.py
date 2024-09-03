@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 import pika
 import os
 from config import config_by_name, Config
+from unittest.mock import MagicMock
 
 app = Flask(__name__)
 
@@ -14,12 +15,11 @@ def load_config():
         raise TypeError(f"{app_config} is not an instance of Config")
 
     print(f"Config class: {app_config}")
-    print(f"RABBITMQ_URI: {app_config.DEVELOPMENT_RABBITMQ_URI}")
-    print(f"DATABASE_URL: {app_config.DEVELOPMENT_DATABASE_URL}")
+    print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
+    print(f"DATABASE_URL: {app_config.DATABASE_URL}")
     
     return app_config
 
-    
 app_config = load_config()
 app.config.from_object(app_config)
 
