@@ -11,9 +11,9 @@ def load_config():
     env = os.getenv('FLASK_ENV', 'development')
     app_config_class = config_by_name.get(env, config_by_name['development'])
     
-    if not issubclass(app_config_class, Config):
-        raise TypeError(f"{app_config_class} is not a subclass of Config")
-
+    if not isinstance(app_config_class, type):
+        raise TypeError(f"{app_config_class} is not a class")
+    
     app_config = app_config_class()
     
     print(f"Config class: {app_config}")
