@@ -48,7 +48,7 @@ engine = initialize_database()
 
 if connection is None or engine is None:
     print("Switching to local configuration due to initialization failure.")
-    app_config = config_by_name['local']()
+    app_config = config_by_name['local']()  # Asegúrate de crear una instancia
     app.config.from_object(app_config)  # Vuelve a asignar la configuración local si falla
     connection, channel = initialize_rabbitmq()
     engine = initialize_database()
