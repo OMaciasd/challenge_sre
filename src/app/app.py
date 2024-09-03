@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from sqlalchemy import create_engine
 import pika
 import os
-from config import config_by_name
+from config import config_by_name, Config
 
 app = Flask(__name__)
 
@@ -14,8 +14,8 @@ def load_config():
     app_config_class = config_by_name.get(env, config_by_name['development'])
     
     # Verificar que sea una clase
-    if not isinstance(app_config_class, type):
-        raise TypeError(f"{app_config_class} is not a class")
+    if not isinstance(app_config_class, type) or not issubclass(app_config_class, Config):
+        raise TypeError(f"{app_config_class} is not a subclass of Config")
     
     app_config = app_config_class()  # Crear una instancia de la configuración
     print(f"SECRET_KEY: {app_config.SECRET_KEY}")
