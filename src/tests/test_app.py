@@ -6,7 +6,6 @@ class AppTestCase(unittest.TestCase):
     @patch('app.initialize_rabbitmq')
     @patch('app.initialize_database')
     def setUp(self, mock_initialize_database, mock_initialize_rabbitmq):
-
         self.mock_rabbitmq_connection = MagicMock()
         self.mock_rabbitmq_channel = MagicMock()
         mock_initialize_rabbitmq.return_value = (self.mock_rabbitmq_connection, self.mock_rabbitmq_channel)
