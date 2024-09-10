@@ -7,7 +7,7 @@
 - 📥[**Setting Up the Development Environment**](#setting-up-the-development-environment)
 - 📝[**Workflow**](#workflow)
 - 🔍[**Testing and Verification**](#testing-and-verification)
-- 🌐[**Commit Messages**](#commit-messages)
+- 🚀[**Commit Messages**](#commit-messages)
 - 🌐[**Submitting Pull Requests**](#submitting-pull-requests)
 - 🚀[**Code Review**](#code-review)
 - 📂[**Verifying the Pipeline in the Repository**](#verifying-the-pipeline-in-the-repository)
@@ -64,13 +64,19 @@
 
 ### ✅ **Test Coverage**
 
-``` python
-pytest --integration --cov=src --cov-report=html
+``` powershell
+$env:PYTHONPATH="C:\Users\$USER\challenge_sre\src\"
+pytest --cov=src src/tests/development --cov-report=html:src/tests/development/coverage.html
+
 ```
+
+![pytest](../assets/images/app/pytest.png)
 
 - **`--cov=src specifies`** the folder where the source code is located.
 
 - **`--cov-report=html`** generates an HTML report, which is saved in the htmlcov folder.
+
+![coverage](../assets/images/app/coverage.png)
 
 ### ✅ **Load Testing**
 

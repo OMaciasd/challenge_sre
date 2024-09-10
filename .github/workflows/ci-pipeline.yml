@@ -1,0 +1,62 @@
+name: Validate MR to Develop and Test
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade --force-reinstall pip setuptools
+        pip install --upgrade -r src/requirements-dev.txt
+
+    - name: Debug Dependencies
+      run: |
+        pip freeze
+        pip show jinja2
+
+    - name: Lint code
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Set PYTHONPATH
+      run: |
+        echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
+
+    - name: Run unit tests
+      env:
+        RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+      run: |
+        pytest --cov=src src/tests/ci --cov-report=xml:src/tests/ci/coverage.xml
+
+    - name: Charging coverage
+      uses: actions/upload-artifact@v3
+      with:
+          name: coverage-report
+          path: src/tests/ci/coverage.xml
+          if-no-files-found: warn
+          include-hidden-files: false
+
+    - name: Checking code vulnerabilities
+      run: |
+        bandit -r .

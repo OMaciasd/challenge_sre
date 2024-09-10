@@ -1,84 +1,18 @@
-from flask import Flask, request, jsonify
-from sqlalchemy import create_engine
-import pika
-import os
-from config import config_by_name, Config
-from unittest.mock import MagicMock
-
-app = Flask(__name__)
-
-def load_config():
-    env = os.getenv('FLASK_ENV', 'development')
-    app_config_class = config_by_name.get(env, config_by_name['development'])
-    
-    if not isinstance(app_config_class, type) or not issubclass(app_config_class, Config):
-        raise TypeError(f"{app_config_class} is not a valid Config class")
-    
-    app_config = app_config_class()
-    
-    print(f"Config class: {app_config.__class__.__name__}")
-    print(f"RABBITMQ_URI: {app_config.RABBITMQ_URI}")
-    print(f"DATABASE_URL: {app_config.DATABASE_URL}")
-    
-    return app_config
+from . import create_app
+from utils import log_utils
+from utils.secrets_utils import validate_secrets
 
 
-app_config = load_config()
-app.config.from_object(app_config)
+def main():
+    validate_secrets()
+    print("Starting the application...")
 
-def initialize_rabbitmq():
-    try:
-        connection = pika.BlockingConnection(
-            pika.URLParameters(app_config.RABBITMQ_URI)
-        )
-        channel = connection.channel()
-        channel.queue_declare(queue='data_queue')
-        return connection, channel
-    except Exception as e:
-        print(f"Error connecting to RabbitMQ: {e}")
-        return None, None
+    log_message = 'Application started successfully'
+    log_utils.send_log_to_rabbitmq(log_message)
 
-def initialize_database():
-    try:
-        engine = create_engine(app_config.DATABASE_URL)
-        with engine.connect():
-            pass
-        return engine
-    except Exception as e:
-        print(f"Error connecting to the database: {e}")
-        return None
+    app = create_app()
+    app.run(debug=True)
 
-connection, channel = initialize_rabbitmq()
-engine = initialize_database()
 
-if connection is None or engine is None:
-    print("Switching to local configuration due to initialization failure.")
-    app_config = config_by_name['local']()
-    app.config.from_object(app_config)
-    connection, channel = initialize_rabbitmq()
-    engine = initialize_database()
-
-@app.route('/')
-def homepage():
-    return "Hello, World!"
-
-@app.route('/log', methods=['POST'])
-def log_data():
-    """Publica un mensaje en RabbitMQ."""
-    log_message = request.json.get('message', '')
-    if channel:
-        channel.basic_publish(exchange='',
-                              routing_key='data_queue',
-                              body=log_message)
-        return jsonify({
-            'status': 'success',
-            'message': 'Log sent to RabbitMQ'
-        })
-    else:
-        return jsonify({
-            'status': 'error',
-            'message': 'RabbitMQ connection not available'
-        })
-
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    main()

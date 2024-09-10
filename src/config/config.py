@@ -1,40 +1,88 @@
 import os
+from dotenv import load_dotenv
+
+env_file = os.getenv(
+    'ENV_FILE',
+    '.env'
+)
+load_dotenv(
+    env_file
+)
+
+print(
+    "DATABASE_URL:",
+    os.getenv(
+        'DATABASE_URL'
+    )
+)
+
 
 class Config:
     """Base configuration."""
-    DEBUG = os.getenv('DEBUG', 'False') == 'True'
-    TESTING = False
-    RABBITMQ_URI = os.getenv('RABBITMQ_URI', 'default-rabbitmq-uri')
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/mydatabase')
+    DEBUG = os.getenv(
+        'DEBUG',
+        'False'
+    ).lower() in [
+        'true',
+        '1'
+    ]
+    DATABASE_URL = os.getenv(
+        'DATABASE_URL',
+        'default-database-url'
+    )
+    RABBITMQ_URI = os.getenv(
+        'RABBITMQ_URI',
+        'default-rabbitmq-uri'
+    )
 
-class DevelopmentConfig(Config):
+
+class DevelopmentConfig(
+    Config
+):
     """Development configuration."""
     DEBUG = True
-    RABBITMQ_URI = os.getenv('DEVELOPMENT_RABBITMQ_URI', 'dev-rabbitmq-uri')
-    DATABASE_URL = os.getenv('DEVELOPMENT_DATABASE_URL', 'dev-database-url')
+    DATABASE_URL = os.getenv(
+        'DEVELOPMENT_DATABASE_URL',
+        'development-database-url'
+    )
+    RABBITMQ_URI = os.getenv(
+        'DEVELOPMENT_RABBITMQ_URI',
+        'development-rabbitmq-uri'
+    )
 
-class TestingConfig(Config):
+
+class TestingConfig(
+    Config
+):
     """Testing configuration."""
     DEBUG = True
     TESTING = True
-    RABBITMQ_URI = os.getenv('TESTING_RABBITMQ_URI', 'test-rabbitmq-uri')
-    DATABASE_URL = os.getenv('TESTING_DATABASE_URL', 'test-database-url')
+    DATABASE_URL = os.getenv(
+        'TESTING_DATABASE_URL',
+        'test-database-url'
+    )
+    RABBITMQ_URI = os.getenv(
+        'TESTING_RABBITMQ_URI',
+        'test-rabbitmq-uri'
+    )
 
-class ProductionConfig(Config):
+
+class ProductionConfig(
+    Config
+):
     """Production configuration."""
-    DEBUG = False
-    RABBITMQ_URI = os.getenv('PRODUCTION_RABBITMQ_URI', 'prod-rabbitmq-uri')
-    DATABASE_URL = os.getenv('PRODUCTION_DATABASE_URL', 'prod-database-url')
-
-class LocalConfig(Config):
-    """Local configuration."""
-    DEBUG = True
-    RABBITMQ_URI = os.getenv('LOCAL_RABBITMQ_URI', 'local-rabbitmq-uri')
-    DATABASE_URL = os.getenv('LOCAL_DATABASE_URL', 'sqlite:///local.db')
-
-config_by_name = {
-    'development': DevelopmentConfig,
-    'testing': TestingConfig,
-    'production': ProductionConfig,
-    'local': LocalConfig,
-}
+    DEBUG = os.getenv(
+        'DEBUG',
+        'False'
+    ).lower() in [
+        'true',
+        '1'
+    ]
+    DATABASE_URL = os.getenv(
+        'PRODUCTION_DATABASE_URL',
+        'prod-database-url'
+    )
+    RABBITMQ_URI = os.getenv(
+        'PRODUCTION_RABBITMQ_URI',
+        'prod-rabbitmq-uri'
+    )

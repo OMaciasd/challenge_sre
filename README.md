@@ -18,7 +18,7 @@
 
 - To demonstrate that the POST request to the endpoint was successfully made, a Python script **`api.py`** was executed to send the specified data. Below is the output from the request:
 
-![json][json]
+![alt text][json]
 
 - This snapshot demonstrates how to send a POST request to the endpoint and verify the response. The response confirms that the request was received and processed successfully.
 
@@ -64,11 +64,9 @@ Before you begin, make sure you have the following installed:
 First, clone the repository to your local machine:
 
 ```bash
-git clone --single-branch --branch develop --recursive --depth=1 https://github.com/OMaciasd/challenge_sre.git
+git clone https://github.com/OMaciasd/tu_latam-challenge
 
-cd challenge_sre
-
-  ![Clone](docs/assets/images/git/git-clone.png)
+cd tu_latam-challenge
 
 ```
 
@@ -76,11 +74,14 @@ cd challenge_sre
 
 1. **Set Up Environment Variables**
 
-   - Create a `**.env**` file in the project root using the `**.env-example**` file as a reference:
+   - Create a `**.env**` file in the project root using the `**.env_docker-compose_example.txt**` file as a reference:
 
-     ```bash
-     cp .env-example .env
+     ```powershell
+     cp ./docs/examples.env_docker-compose_example.txt ./scripts/.env
+     .\load_env.ps1
      ```
+
+    ![powershell](./docs/assets/images/infrastructure/powershell.png)
 
    - Fill in the `**.env file**` with your specific credentials and configurations.
 
@@ -88,8 +89,11 @@ cd challenge_sre
 
 - If you're using Docker, this step is handled within the container. If you prefer to run the project locally:
 
-  ```bash
-  pip install -r requirements.txt
+  ```powershell
+  python -m venv venv
+  .\venv\Scripts\Activate
+  python -m pip install --upgrade --force-reinstall pip setuptools
+  pip install -r src/requirements-dev.txt
 
   ```
 
@@ -100,7 +104,7 @@ cd challenge_sre
 *This will build and start all the services defined in the docker-compose.yml file.*
 
   ```bash
-  docker-compose up --build
+  docker-compose up -d
   ```
 
 **Without Docker**:
@@ -124,6 +128,9 @@ To ensure everything is working correctly, make a GET request to the main endpoi
 
   ```bash
   curl http://localhost:5000
+  curl http://localhost:5000/status
+  curl http://localhost:5000/metrics
+
   ```
 
 You should receive a response indicating that the API is up and running.
@@ -150,7 +157,7 @@ The CI/CD pipeline for this project has been implemented using GitHub Actions to
 
 1. **Continuous Integration (CI):**
 
-   - Every time a commit is made to the `develop` or `master` branches, the CI pipeline is triggered.
+   - Every time a commit is made to the `develop` or `main` branches, the CI pipeline is triggered.
 
    - The pipeline performs the following actions:
 
@@ -191,11 +198,11 @@ The integration tests include:
 
 ## 🖥️ **Architecture**
 
-For detailed information on the system's architecture, including design decisions and component interactions, refer to the [Architecture Guide](docs/ARCHITECTURE.md).
+For detailed information on the system's architecture, including design decisions and component interactions, refer to the [Architecture Guide](./docs/guides/ARCHITECTURE.md).
 
 ## 🚨 **How to Contribute**
 
-To contribute to this project, please check out our [Contribution Guide](docs/CONTRIBUTING.md) for instructions on setting up your development environment and the process for submitting contributions.
+To contribute to this project, please check out our [Contribution Guide](./docs/guides/CONTRIBUTING.md) for instructions on setting up your development environment and the process for submitting contributions.
 
 Describe how to contribute to the project’s documentation
 
@@ -266,7 +273,8 @@ This project is the result of collective effort and contributions from various s
 > **Dependency Updates**: Keep dependencies up to date by running:
 >
 > ```bash
-> pip install --upgrade -r requirements.txt
+>   pip install --upgrade -r src/requirements-dev.txt
+>
 > ```
 
 Thank you for considering my submission. If you have any questions or need further clarification, please feel free to reach out to me via [email](mailto:omaciasnarvaez@gmail.com).
