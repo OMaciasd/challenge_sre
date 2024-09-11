@@ -151,11 +151,16 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Verify build artifacts
+      run: |
+        ls -la dist/
+
     - name: Upload release asset
       if: steps.create_release.outputs.upload_url
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/*
+        asset_path: dist/my-python-project-${{ github.sha }}.tar.gz
         asset_name: my-python-project-${{ github.sha }}.tar.gz
         asset_content_type: application/gzip
+    
