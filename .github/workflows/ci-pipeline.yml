@@ -129,6 +129,14 @@ jobs:
         echo "New tag: $new_tag"
         echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
 
+    - name: Check if tag exists
+      id: check_tag
+      run: |
+        if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
+          echo "Tag ${{ env.NEW_TAG }} already exists"
+          exit 1
+        fi
+        
     - name: Create new tag
       run: |
         git tag ${{ env.NEW_TAG }}
