@@ -112,19 +112,19 @@ jobs:
         echo "Latest tag: $latest_tag"
         echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
 
-    - name: Increment the tag
+    - name: Increment the tag with pre-release
       id: increment_tag
       run: |
         latest_tag="${{ env.LATEST_TAG }}"
         if [ -z "$latest_tag" ]; then
-          new_tag="v1.0.0"
+          new_tag="v1.0.0-alpha"
         else
           IFS='.' read -r -a version <<< "${latest_tag#v}"
           major=${version[0]}
           minor=${version[1]}
           patch=${version[2]}
           patch=$((patch + 1))
-          new_tag="v${major}.${minor}.${patch}"
+          new_tag="v${major}.${minor}.${patch}-alpha"
         fi
         echo "New tag: $new_tag"
         echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
