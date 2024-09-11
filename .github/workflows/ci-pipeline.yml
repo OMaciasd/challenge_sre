@@ -112,12 +112,12 @@ jobs:
         echo "Latest tag: $latest_tag"
         echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
 
-    - name: Increment the tag with pre-release
+    - name: Increment the tag
       id: increment_tag
       run: |
         latest_tag="${{ env.LATEST_TAG }}"
         if [ -z "$latest_tag" ]; then
-          new_tag="v1.0.0-alpha"
+          new_tag="v1.0.0-alpha-$(date +%Y%m%d%H%M%S)"
         else
           IFS='.' read -r -a version <<< "${latest_tag#v}"
           major=${version[0]}
@@ -136,11 +136,12 @@ jobs:
           echo "Tag ${{ env.NEW_TAG }} already exists"
           exit 1
         fi
-        
+
     - name: Create new tag
+      if: success()
       run: |
         git tag ${{ env.NEW_TAG }}
-        git push origin ${{ env.NEW_TAG }}
+        git push origin -f ${{ env.NEW_TAG }}
 
     - name: Create Release
       uses: actions/create-release@v1
@@ -159,4 +160,3 @@ jobs:
         asset_path: dist/*
         asset_name: my-python-project-${{ github.sha }}.tar.gz
         asset_content_type: application/gzip
-  
