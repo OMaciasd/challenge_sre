@@ -105,13 +105,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Create Tag
+      run: |
+        git tag v1.0.0
+        git push origin v1.0.0
+    
     - name: Create Release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 18f4b499f44f4d97b7674d461c176f0ed717dc68
-        release_name: Release 18f4b499f44f4d97b7674d461c176f0ed717dc68
+        tag_name: v1.0.0
+        release_name: Release v1.0.0
         draft: false
         prerelease: false
 
