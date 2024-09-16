@@ -21,6 +21,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/labeler@2
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -140,11 +144,11 @@ jobs:
       run: |
         echo "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Create Release
+    - name: Create a Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
       with:
         tag_name: ${{ env.NEW_TAG }}
         release_name: Release ${{ env.NEW_TAG }}
