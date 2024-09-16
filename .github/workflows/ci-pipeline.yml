@@ -12,6 +12,10 @@ on:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
+  deployments: write
+  packages: write 
 
 jobs:
   validate:
