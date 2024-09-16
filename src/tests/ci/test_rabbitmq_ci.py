@@ -6,7 +6,7 @@ from utils.secrets_utils import validate_secrets
 
 @pytest.fixture(autouse=True)
 def mock_rabbitmq_uri():
-    rabbitmq_uri = os.getenv('RABBITMQ_URI', 'default_value_if_not_set')
+    rabbitmq_uri = os.getenv('RABBITMQ_URI', 'mocked_rabbitmq_uri')
     with patch.dict(os.environ, {'RABBITMQ_URI': rabbitmq_uri}):
         yield rabbitmq_uri
 
@@ -19,17 +19,20 @@ def test_validate_secrets_all_vars_set():
 
 @pytest.mark.timeout(5)
 @patch('utils.rabbitmq_utils.pika.BlockingConnection')
-def test_parse_rabbitmq_url(mock_blocking_connection, mock_rabbitmq_uri):
+@patch('utils.rabbitmq_utils.pika.ConnectionParameters')
+def test_parse_rabbitmq_url(mock_connection_parameters, mock_blocking_connection, mock_rabbitmq_uri):
     mock_connection = MagicMock()
-    mock_channel = MagicMock()
-    mock_connection.channel.return_value = mock_channel
     mock_blocking_connection.return_value = mock_connection
+    mock_connection_parameters.return_value = MagicMock()
 
     result = parse_rabbitmq_url()
 
     mock_blocking_connection.assert_called_once()
 
+    mock_connection_parameters.assert_called_once_with(
+        host=mock_rabbitmq_uri,
+        socket_timeout=10
+    )
+
     expected_url = mock_rabbitmq_uri
-    
-    if result != expected_url:
-        pytest.fail(f"Expected '{expected_url}', but got {result}")
+    assert result == expected_url, f"Expected '{expected_url}', but got {result}"
