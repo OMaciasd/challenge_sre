@@ -21,162 +21,98 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Lint Action
-        uses: wearerequired/lint-action@v2.3.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.12"
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('src/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            
-      - name: Install dependencies
-        run: |
-          pip install --upgrade -r src/requirements-dev.txt
+    - name: Lint code
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-      - name: Lint code
-        run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    - name: Set PYTHONPATH
+      run: |
+        echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
 
-      - name: Set PYTHONPATH
-        run: |
-          echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
+    - name: Run unit tests
+      env:
+        RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+      run: |
+        pytest --cov=src src/tests/ci --cov-report=xml:src/tests/ci/coverage.xml
 
-      - name: Run unit tests
-        env:
-          RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
-        run: |
-          pytest --cov=src src/tests/ci --cov-report=xml:src/tests/ci/coverage.xml
+    - name: Checking code vulnerabilities
+      run: |
+        bandit -r .
 
-      - name: Checking code vulnerabilities
-        run: |
-          bandit -r .
-
-  build:
+  release:
     runs-on: ubuntu-latest
     needs: validate
     if: github.ref == 'refs/heads/test'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.12"
+    - name: Get the latest tag
+      id: get_tag
+      run: |
+        latest_tag=$(git tag --list "v*" | sort -V | tail -n 1)
+        echo "Latest tag: $latest_tag"
+        echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
 
-      - name: Restore pip cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('src/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+    - name: Increment the tag
+      id: increment_tag
+      run: |
+        latest_tag="${{ env.LATEST_TAG }}"
+        if [ -z "$latest_tag" ]; then
+          new_tag="v1.0.0-alpha-$(date +%Y%m%d%H%M%S)"
+        else
+          IFS='.' read -r -a version <<< "${latest_tag#v}"
+          major=${version[0]}
+          minor=${version[1]}
+          patch=${version[2]}
+          patch=$((patch + 1))
+          new_tag="v${major}.${minor}.${patch}-alpha"
+        fi
+        echo "New tag: $new_tag"
+        echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
 
-      - name: Install setuptools
-        run: |
-          python -m pip install --upgrade --force-reinstall pip setuptools
+    - name: Check if tag exists
+      id: check_tag
+      run: |
+        if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
+          echo "Tag ${{ env.NEW_TAG }} already exists"
+          exit 1
+        fi
 
-      - name: Build project
-        run: |
-          python setup.py sdist bdist_wheel
-          ls dist/  # Verifica los artefactos generados
+    - name: Create new tag
+      if: success()
+      run: |
+        git tag ${{ env.NEW_TAG }}
+        git push origin -f ${{ env.NEW_TAG }}
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: dist/
+    - name: Create a Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_TAG }}
+        release_name: Release ${{ env.NEW_TAG }}
+        draft: false
+        prerelease: false
 
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/test'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Get the latest tag
-        id: get_tag
-        run: |
-          latest_tag=$(git tag --list "v*" | sort -V | tail -n 1)
-          echo "Latest tag: $latest_tag"
-          echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
-
-      - name: Increment the tag
-        id: increment_tag
-        run: |
-          latest_tag="${{ env.LATEST_TAG }}"
-          if [ -z "$latest_tag" ]; then
-            new_tag="v1.0.0-alpha-$(date +%Y%m%d%H%M%S)"
-          else
-            IFS='.' read -r -a version <<< "${latest_tag#v}"
-            major=${version[0]}
-            minor=${version[1]}
-            patch=${version[2]}
-            patch=$((patch + 1))
-            new_tag="v${major}.${minor}.${patch}-alpha"
-          fi
-          echo "New tag: $new_tag"
-          echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
-
-      - name: Check if tag exists
-        id: check_tag
-        run: |
-          if git rev-parse "${{ env.NEW_TAG }}" >/dev/null 2>&1; then
-            echo "Tag ${{ env.NEW_TAG }} already exists"
-            exit 1
-          fi
-
-      - name: Create new tag
-        if: success()
-        run: |
-          git tag ${{ env.NEW_TAG }}
-          git push origin -f ${{ env.NEW_TAG }}
-
-      - name: Create a Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.NEW_TAG }}
-          release_name: Release ${{ env.NEW_TAG }}
-          draft: false
-          prerelease: false
-
-      - name: Build project
-        run: |
-          python setup.py sdist bdist_wheel
-
-      - name: List dist directory
-        run: |
-          ls dist/
-
-      - name: Upload release asset
-        if: steps.create_release.outputs.upload_url
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/my-python-project-0.1.0.tar.gz
-          asset_name: my-python-project-0.1.0.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Rename build artifact
-        run: |
-          mv dist/my-python-project-0.1.0.tar.gz dist/${{ env.NEW_TAG }}.tar.gz
+    - name: Upload release asset
+      if: steps.create_release.outputs.upload_url
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/my-python-project-0.1.0.tar.gz
+        asset_name: my-python-project-0.1.0.tar.gz
+        asset_content_type: application/gzip
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
