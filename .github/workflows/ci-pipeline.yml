@@ -99,6 +99,11 @@ jobs:
         git tag ${{ env.NEW_TAG }}
         git push origin -f ${{ env.NEW_TAG }}
 
+    - name: Build project
+      run: |
+        mkdir -p dist
+        tar -czf dist/my-python-project-0.1.0.tar.gz .
+        
     - name: Create a Release
       id: create_release
       uses: actions/create-release@v1
