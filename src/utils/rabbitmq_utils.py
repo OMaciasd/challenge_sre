@@ -1,16 +1,13 @@
-import logging
 from config.config import Config
-
-logger = logging.getLogger(__name__)
-
+import pika
 
 def parse_rabbitmq_url():
-    """
-    Analiza la URL de RabbitMQ desde la configuración.
-    """
-    url = Config.RABBITMQ_URI
-    if not url:
-        logger.error("RABBITMQ_URI no está configurado.")
-        raise ValueError("RABBITMQ_URI no está configurado.")
-
-    return url
+    uri = Config.RABBITMQ_URI
+    if not uri:
+        raise ValueError("RABBITMQ_URI is not set")
+    
+    connection_parameters = pika.URLParameters(uri)
+    connection = pika.BlockingConnection(connection_parameters)
+    channel = connection.channel()
+        
+    return uri
