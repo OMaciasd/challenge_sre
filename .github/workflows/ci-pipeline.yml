@@ -43,11 +43,11 @@ jobs:
 
     - name: Run unit tests
       env:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ELASTICSEARCH_URL: ${{ vars.ELASTICSEARCH_URL }}
         RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
-        ELASTICSEARCH_URL: ${{ secrets.ELASTICSEARCH_URL }}
       run: |
         pytest --cov=src src/tests/ci --cov-report=xml:src/tests/ci/coverage.xml
 
