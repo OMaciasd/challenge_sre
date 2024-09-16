@@ -1,17 +1,16 @@
 import pytest
-import os
 from unittest.mock import patch, MagicMock
 from utils.rabbitmq_utils import parse_rabbitmq_url
 
 @pytest.fixture(autouse=True)
 def mock_rabbitmq_uri():
     rabbitmq_uri = 'mocked_rabbitmq_uri'
-    with patch.dict(os.environ, {'RABBITMQ_URI': rabbitmq_uri}):
+    with patch('config.config.Config.RABBITMQ_URI', rabbitmq_uri):
         yield rabbitmq_uri
 
 @pytest.mark.timeout(5)
-@patch('utils.rabbitmq_utils.pika.BlockingConnection')
-@patch('utils.rabbitmq_utils.pika.ConnectionParameters')
+@patch('pika.BlockingConnection')
+@patch('pika.ConnectionParameters')
 def test_parse_rabbitmq_url(mock_connection_parameters, mock_blocking_connection, mock_rabbitmq_uri):
     mock_connection = MagicMock()
     mock_blocking_connection.return_value = mock_connection
