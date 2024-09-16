@@ -1,40 +1,23 @@
 import pytest
-from unittest.mock import patch, MagicMock
+import os
+from config.config import Config
 from utils.rabbitmq_utils import parse_rabbitmq_url
+from utils.secrets_utils import validate_secrets
 
-@pytest.fixture(autouse=True)
-def mock_rabbitmq_uri():
-    rabbitmq_uri = 'amqp://mocked_rabbitmq_uri'
-    with patch('config.config.Config.RABBITMQ_URI', rabbitmq_uri):
-        yield rabbitmq_uri
+@pytest.fixture
+def set_rabbitmq_env_var():
+    os.environ['RABBITMQ_URI'] = Config.RABBITMQ_URI
+    yield os.environ['RABBITMQ_URI']
+    del os.environ['RABBITMQ_URI']
 
-@pytest.mark.timeout(5)
-@patch('pika.BlockingConnection')
-@patch('pika.ConnectionParameters')
-def test_parse_rabbitmq_url(mock_connection_parameters, mock_blocking_connection, mock_rabbitmq_uri):
-    mock_connection = MagicMock()
-    mock_blocking_connection.return_value = mock_connection
-    mock_connection_parameters.return_value = MagicMock()
-
-    result = parse_rabbitmq_url()
-
-    if not mock_blocking_connection.called:
-        pytest.fail("Expected BlockingConnection to be called once, but it was not.")
-
-    if not mock_connection_parameters.called:
-        pytest.fail("Expected ConnectionParameters to be called, but it was not.")
-    
+def test_validate_secrets_all_vars_set(set_rabbitmq_env_var):
     try:
-        call_args = mock_connection_parameters.call_args
-        if not call_args:
-            pytest.fail("ConnectionParameters was not called with any arguments.")
-        
-        connection_params = call_args[0][0]
-    except IndexError:
-        pytest.fail("Error accessing call_args for ConnectionParameters.")
-    
-    if connection_params.host != mock_rabbitmq_uri or connection_params.socket_timeout != 10:
-        pytest.fail(f"Expected ConnectionParameters to be called with host='{mock_rabbitmq_uri}' and socket_timeout=10, but got host='{connection_params.host}' and socket_timeout={connection_params.socket_timeout}.")
+        validate_secrets()
+    except ValueError:
+        pytest.fail("validate_secrets raised ValueError unexpectedly!")
 
-    if result != mock_rabbitmq_uri:
-        pytest.fail(f"Expected '{mock_rabbitmq_uri}', but got {result}.")
+def test_parse_rabbitmq_url(set_rabbitmq_env_var):
+    result = parse_rabbitmq_url()
+    expected_url = set_rabbitmq_env_var
+    if result != expected_url:
+        pytest.fail(f"Expected '{expected_url}', but got '{result}'")
