@@ -135,7 +135,11 @@ jobs:
       run: |
         git tag ${{ env.NEW_TAG }}
         git push origin -f ${{ env.NEW_TAG }}
-  
+
+    - name: Debug Token
+      run: |
+        echo "GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -156,6 +160,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/my-python-project-0.1.0.tar.gz
-        asset_name: my-python-project-0.1.0.tar.gz
+        asset_path: dist/*.tar.gz
+        asset_name: ${{ env.NEW_TAG }}.tar.gz
         asset_content_type: application/gzip
+
