@@ -154,7 +154,11 @@ jobs:
     - name: Build project
       run: |
         python setup.py sdist bdist_wheel
-  
+
+    - name: List dist directory
+      run: |
+        ls dist/
+
     - name: Upload release asset
       if: steps.create_release.outputs.upload_url
       uses: actions/upload-release-asset@v1
