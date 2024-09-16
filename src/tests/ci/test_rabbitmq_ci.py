@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import patch
 from config.config import Config
+from utils.rabbitmq_utils import parse_rabbitmq_url
+from utils.secrets_utils import validate_secrets
 import time
 
 @pytest.fixture(autouse=True)
