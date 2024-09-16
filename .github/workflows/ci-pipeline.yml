@@ -139,9 +139,19 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Verify build artifacts
+    - name: List directories before build
       run: |
+        ls -la
+    
+    - name: Build project
+      run: |
+        python setup.py sdist bdist_wheel
         ls -la dist/
+    
+    - name: List directories after build
+      run: |
+        ls -la
+
     - name: Upload release asset
       if: steps.create_release.outputs.upload_url
       uses: actions/upload-release-asset@v1
