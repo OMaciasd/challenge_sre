@@ -25,6 +25,9 @@ jobs:
       with:
         repo-token: ${{ github.token }}
     
+    - name: Lint Action
+      uses: wearerequired/lint-action@v2.3.0
+            
     - name: Checkout code
       uses: actions/checkout@v3
 
