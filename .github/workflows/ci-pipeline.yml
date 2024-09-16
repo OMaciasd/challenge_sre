@@ -93,13 +93,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
+  
     - name: Get the latest tag
       id: get_tag
       run: |
         latest_tag=$(git tag --list "v*" | sort -V | tail -n 1)
         echo "Latest tag: $latest_tag"
         echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
+  
     - name: Increment the tag
       id: increment_tag
       run: |
@@ -116,6 +117,7 @@ jobs:
         fi
         echo "New tag: $new_tag"
         echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
+  
     - name: Check if tag exists
       id: check_tag
       run: |
@@ -123,11 +125,13 @@ jobs:
           echo "Tag ${{ env.NEW_TAG }} already exists"
           exit 1
         fi
+  
     - name: Create new tag
       if: success()
       run: |
         git tag ${{ env.NEW_TAG }}
         git push origin -f ${{ env.NEW_TAG }}
+  
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -138,25 +142,16 @@ jobs:
         release_name: Release ${{ env.NEW_TAG }}
         draft: false
         prerelease: false
-
-    - name: List directories before build
-      run: |
-        ls -la
-    
+  
     - name: Build project
       run: |
         python setup.py sdist bdist_wheel
-        ls -la dist/
-    
-    - name: List directories after build
-      run: |
-        ls -la
-
+  
     - name: Upload release asset
       if: steps.create_release.outputs.upload_url
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/my-python-project-${{ github.sha }}.tar.gz
-        asset_name: my-python-project-${{ github.sha }}.tar.gz
+        asset_path: dist/my-python-project-0.1.0.tar.gz
+        asset_name: my-python-project-0.1.0.tar.gz
         asset_content_type: application/gzip
