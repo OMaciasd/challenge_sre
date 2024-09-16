@@ -1,6 +1,6 @@
 import pytest
 import os
-from unittest.mock import patch, Mock
+from unittest.mock import patch, MagicMock
 from config.config import Config
 from utils.rabbitmq_utils import parse_rabbitmq_url
 from utils.secrets_utils import validate_secrets
