@@ -4,7 +4,7 @@ from utils.rabbitmq_utils import parse_rabbitmq_url
 
 @pytest.fixture(autouse=True)
 def mock_rabbitmq_uri():
-    rabbitmq_uri = 'mocked_rabbitmq_uri'
+    rabbitmq_uri = 'amqp://mocked_rabbitmq_uri'
     with patch('config.config.Config.RABBITMQ_URI', rabbitmq_uri):
         yield rabbitmq_uri
 
