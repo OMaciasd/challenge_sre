@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/labeler@v2.0.0
       with:
-        repo-token: ${{ secrets.NEW_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}
     
     - name: Checkout code
       uses: actions/checkout@v3
