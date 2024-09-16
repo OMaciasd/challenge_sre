@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/labeler@v2.0.0
       with:
-        GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}
+        repo-token: ${{ secrets.REPO_TOKEN }}
     
     - name: Checkout code
       uses: actions/checkout@v3
@@ -142,13 +142,13 @@ jobs:
 
     - name: Debug Token
       run: |
-        echo "GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}"
+        echo "GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}"
 
     - name: Create a Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.NEW_GITHUB_TOKEN }}"
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN}}"
       with:
         tag_name: ${{ env.NEW_TAG }}
         release_name: Release ${{ env.NEW_TAG }}
