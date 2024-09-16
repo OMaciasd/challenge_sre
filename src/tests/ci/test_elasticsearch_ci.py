@@ -1,12 +1,13 @@
 import pika
 import requests
-
+import os
 
 def test_log_integration():
+    rabbitmq_url = os.getenv('RABBITMQ_URL', 'localhost')
+    elasticsearch_url = os.getenv('ELASTICSEARCH_URL', 'http://localhost:9200')
+
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            'localhost'
-        )
+        pika.ConnectionParameters(rabbitmq_url)
     )
     channel = connection.channel()
     channel.queue_declare(queue='log_queue')
@@ -17,7 +18,7 @@ def test_log_integration():
 
     try:
         response = requests.get(
-            'http://localhost:9200/logs-*/_search?q=test+log+message',
+            f'{elasticsearch_url}/logs-*/_search?q=test+log+message',
             timeout=10
         )
         if response.status_code == 200:
@@ -27,9 +28,7 @@ def test_log_integration():
                 print("Test failed: Log message not found in Elasticsearch.")
         else:
             print(
-                f"Test failed: Elasticsearch returned status code {
-                    response.status_code
-                }."
+                f"Test failed: Elasticsearch returned status code {response.status_code}."
             )
     except requests.exceptions.RequestException as e:
         print(f"Test failed: An error occurred - {e}")
