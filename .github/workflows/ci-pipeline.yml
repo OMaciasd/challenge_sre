@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - tests
+      - test
   pull_request:
     branches:
       - develop
@@ -56,7 +56,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: validate
-    if: github.ref == 'refs/heads/tests'
+    if: github.ref == 'refs/heads/test'
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/tests'
+    if: github.ref == 'refs/heads/test'
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
