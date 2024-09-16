@@ -29,7 +29,11 @@ def test_parse_rabbitmq_url(mock_blocking_connection, set_rabbitmq_env_var):
     mock_blocking_connection.return_value = mock_connection
 
     result = parse_rabbitmq_url()
+    
     expected_url = set_rabbitmq_env_var
+
+    print(f"Result: {result}")
+    print(f"Expected URL: {expected_url}")
 
     if result != expected_url:
         pytest.fail(f"Expected '{expected_url}', but got '{result}'")
