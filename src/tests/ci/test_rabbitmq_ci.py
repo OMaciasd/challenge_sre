@@ -1,23 +1,39 @@
 import pytest
 from unittest.mock import patch
 from config.config import Config
-from utils.rabbitmq_utils import parse_rabbitmq_url
-from utils.secrets_utils import validate_secrets
+import time
 
+@pytest.fixture(autouse=True)
+def mock_rabbitmq_uri():
+    with patch.object(Config, 'RABBITMQ_URI', 'amqp://guest:guest@localhost:5672/'):
+        yield
 
-@patch.object(Config, 'RABBITMQ_URI', 'amqp://guest:guest@localhost:5672/')
 def test_validate_secrets_all_vars_set():
+    timeout = 5
+    start_time = time.time()
+
     try:
         validate_secrets()
+        elapsed_time = time.time() - start_time
+        if elapsed_time > timeout:
+            pytest.fail(f"Test timed out after {elapsed_time} seconds (limit was {timeout}s)")
     except ValueError:
         pytest.fail("validate_secrets raised ValueError unexpectedly!")
+    if True:
+        pass
 
 
-@patch.object(Config, 'RABBITMQ_URI', 'amqp://guest:guest@localhost:5672/')
 def test_parse_rabbitmq_url():
+    timeout = 5
+    start_time = time.time()
+
     result = parse_rabbitmq_url()
+    elapsed_time = time.time() - start_time
+
+    if elapsed_time > timeout:
+        pytest.fail(f"Test timed out after {elapsed_time} seconds (limit was {timeout}s)")
+
     if result != 'amqp://guest:guest@localhost:5672/':
         pytest.fail(
-            "Expected 'amqp://guest:guest@localhost:5672/',"
-            f"but got {result}"
+            f"Expected 'amqp://guest:guest@localhost:5672/', but got {result}"
         )
