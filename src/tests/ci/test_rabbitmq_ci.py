@@ -23,12 +23,16 @@ def test_parse_rabbitmq_url(mock_connection_parameters, mock_blocking_connection
 
     if not mock_connection_parameters.called:
         pytest.fail("Expected ConnectionParameters to be called, but it was not.")
-
-    call_args = mock_connection_parameters.call_args
-    if not call_args:
-        pytest.fail("ConnectionParameters was not called with any arguments.")
     
-    connection_params = call_args[0][0]
+    try:
+        call_args = mock_connection_parameters.call_args
+        if not call_args:
+            pytest.fail("ConnectionParameters was not called with any arguments.")
+        
+        connection_params = call_args[0][0]
+    except IndexError:
+        pytest.fail("Error accessing call_args for ConnectionParameters.")
+    
     if connection_params.host != mock_rabbitmq_uri or connection_params.socket_timeout != 10:
         pytest.fail(f"Expected ConnectionParameters to be called with host='{mock_rabbitmq_uri}' and socket_timeout=10, but got host='{connection_params.host}' and socket_timeout={connection_params.socket_timeout}.")
 
