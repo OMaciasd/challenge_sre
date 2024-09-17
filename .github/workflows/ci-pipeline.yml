@@ -154,13 +154,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/my-python-project-0.1.0.tar.gz
         asset_name: my-python-project-0.1.0.tar.gz
         asset_content_type: application/gzip
   
