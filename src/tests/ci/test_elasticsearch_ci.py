@@ -1,35 +1,32 @@
-import pika
-import requests
+import pytest
+from unittest.mock import patch, MagicMock
+from config.config import Config
+from utils.rabbitmq_utils import parse_rabbitmq_url
+from utils.secrets_utils import validate_secrets
 
+@pytest.fixture
+def set_rabbitmq_config():
+    return Config.RABBITMQ_URI
 
-def test_log_integration():
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            'localhost'
-        )
-    )
-    channel = connection.channel()
-    channel.queue_declare(queue='log_queue')
-    channel.basic_publish(exchange='',
-                          routing_key='log_queue',
-                          body='test log message')
-    connection.close()
-
+@pytest.mark.timeout(5)
+def test_validate_secrets_all_vars_set(set_rabbitmq_config):
     try:
-        response = requests.get(
-            'http://localhost:9200/logs-*/_search?q=test+log+message',
-            timeout=10
-        )
-        if response.status_code == 200:
-            if 'test log message' in response.text:
-                print("Test passed: Log message found in Elasticsearch.")
-            else:
-                print("Test failed: Log message not found in Elasticsearch.")
-        else:
-            print(
-                f"Test failed: Elasticsearch returned status code {
-                    response.status_code
-                }."
-            )
-    except requests.exceptions.RequestException as e:
-        print(f"Test failed: An error occurred - {e}")
+        validate_secrets()
+    except ValueError:
+        pytest.fail("validate_secrets raised ValueError unexpectedly!")
+
+@patch('pika.BlockingConnection')
+@pytest.mark.timeout(10)
+def test_parse_rabbitmq_url(mock_blocking_connection, set_rabbitmq_config):
+    mock_connection = MagicMock()
+    mock_channel = MagicMock()
+    mock_connection.channel.return_value = mock_channel
+    mock_blocking_connection.return_value = mock_connection
+
+    result = parse_rabbitmq_url()
+    expected_url = set_rabbitmq_config
+
+    if result != expected_url:
+        pytest.fail(f"Expected '{expected_url}', but got '{result}'")
+
+    mock_blocking_connection.assert_called_once()

@@ -1,13 +1,12 @@
-from config.config import Config
 import pika
+from config.config import Config
 
 def parse_rabbitmq_url():
-    uri = Config.RABBITMQ_URI
-    if not uri:
-        raise ValueError("RABBITMQ_URI is not set")
+    url = Config.RABBITMQ_URI
+
+    connection_params = pika.URLParameters(url)
     
-    connection_parameters = pika.URLParameters(uri)
-    connection = pika.BlockingConnection(connection_parameters)
+    connection = pika.BlockingConnection(connection_params)
     channel = connection.channel()
-        
-    return uri
+    
+    return url
