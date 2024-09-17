@@ -1,5 +1,3 @@
-name: Validate MR to Develop
-
 on:
   push:
     branches:
@@ -21,25 +19,31 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: "3.12"
 
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('src/requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
     - name: Install dependencies
       run: |
         pip install --upgrade -r src/requirements-dev.txt
-
     - name: Lint code
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-
     - name: Set PYTHONPATH
       run: |
         echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
-
     - name: Run unit tests
       env:
         RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
@@ -47,13 +51,11 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
       run: |
-        pytest --cov=src src/tests/ci --cov-report=xml:src/tests/ci/coverage.xml
-
+        pytest --cov=src src/tests/ci --cov-report=html:src/tests/ci/coverage.html
     - name: Checking code vulnerabilities
       run: |
         bandit -r .
-
-  release:
+  build:
     runs-on: ubuntu-latest
     needs: validate
     if: github.ref == 'refs/heads/test'
@@ -61,13 +63,46 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
+
+    - name: Restore pip cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('src/requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install setuptools
+      run: |
+        python -m pip install --upgrade --force-reinstall pip setuptools
+    - name: Build project
+      run: |
+        python setup.py sdist bdist_wheel
+        ls dist/  # Verifica los artefactos generados
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifact
+        path: dist/
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/test'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+  
     - name: Get the latest tag
       id: get_tag
       run: |
         latest_tag=$(git tag --list "v*" | sort -V | tail -n 1)
         echo "Latest tag: $latest_tag"
         echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
-
+  
     - name: Increment the tag
       id: increment_tag
       run: |
@@ -84,7 +119,7 @@ jobs:
         fi
         echo "New tag: $new_tag"
         echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
-
+  
     - name: Check if tag exists
       id: check_tag
       run: |
@@ -93,18 +128,16 @@ jobs:
           exit 1
         fi
 
+    - name: Set output
+      run: echo "output_name=value" >> $GITHUB_ENV
+
     - name: Create new tag
       if: success()
       run: |
         git tag ${{ env.NEW_TAG }}
         git push origin -f ${{ env.NEW_TAG }}
 
-    - name: Build project
-      run: |
-        mkdir -p dist
-        tar -czf dist/my-python-project-0.1.0.tar.gz .
-        
-    - name: Create a Release
+    - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -114,18 +147,18 @@ jobs:
         release_name: Release ${{ env.NEW_TAG }}
         draft: false
         prerelease: false
-
-    - name: List files
-      run: ls -al dist/
-
-    - name: Upload release asset
-      if: steps.create_release.outputs.upload_url
+  
+    - name: Build project
+      run: |
+        python setup.py sdist bdist_wheel
+  
+    - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dist/my-python-project-0.1.0.tar.gz
         asset_name: my-python-project-0.1.0.tar.gz
         asset_content_type: application/gzip
-      env:
-        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
-
+  
