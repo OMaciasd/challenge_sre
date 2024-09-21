@@ -1,8 +1,17 @@
 import pika
 from pika.exceptions import AMQPError
+from config.config import Config
+import logging
+
+def setup_logging():
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.info("Logging is set up.")
 
 
-def send_log_to_rabbitmq(log_message, rabbitmq_host='rabbitmq_host'):
+def send_log_to_rabbitmq(log_message):
+    rabbitmq_host = Config.RABBITMQ_URI
+
     connection = None
     try:
         connection = pika.BlockingConnection(

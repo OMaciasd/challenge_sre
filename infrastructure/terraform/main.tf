@@ -12,7 +12,7 @@ resource "docker_container" "postgres" {
 
   ports {
     internal = 5432
-    external = 5432
+    external = 5433
   }
 
   env = [
@@ -27,17 +27,7 @@ resource "docker_container" "postgres" {
 }
 
 resource "docker_image" "api" {
-  name = "flask-api"
-  build {
-    context = "${path.root}/src"
-    tag     = ["flask-api:latest"]
-    label = {
-      author : "omaciasd"
-    }
-  }
-  triggers = {
-    dir_sha1 = sha1(join("", [for f in fileset(path.module, "src/*") : filesha1(f)]))
-  }
+  name = "omaciasd/flask-api:latest"
 }
 
 resource "docker_container" "api" {

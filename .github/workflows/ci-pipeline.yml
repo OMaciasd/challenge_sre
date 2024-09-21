@@ -12,7 +12,7 @@ permissions:
   issues: write
   pull-requests: write
   deployments: write
-  packages: write 
+  packages: write
 
 jobs:
   validate:
@@ -33,16 +33,22 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('src/requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-          
+
     - name: Install dependencies
       run: |
         pip install --upgrade -r src/requirements-dev.txt
+
     - name: Lint code
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
     - name: Set PYTHONPATH
       run: |
         echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
+
+    - name: Set environment variable
+      run: echo "ENVIRONMENT=test" >> $GITHUB_ENV
+
     - name: Run unit tests
       env:
         RABBITMQ_URI: ${{ secrets.RABBITMQ_URI }}
@@ -51,6 +57,7 @@ jobs:
         RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
       run: |
         pytest --cov=src src/tests/ci --cov-report=html:src/tests/ci/coverage.html
+
     - name: Checking code vulnerabilities
       run: |
         bandit -r .
@@ -74,11 +81,11 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('src/requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-          
+
     - name: Install setuptools
       run: |
         python -m pip install --upgrade --force-reinstall pip setuptools
-        
+
     - name: Build project
       run: |
         python setup.py sdist bdist_wheel
@@ -96,14 +103,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-  
+
     - name: Get the latest tag
       id: get_tag
       run: |
         latest_tag=$(git tag --list "v*" | sort -V | tail -n 1)
         echo "Latest tag: $latest_tag"
         echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
-  
+
     - name: Increment the tag
       id: increment_tag
       run: |
@@ -120,7 +127,7 @@ jobs:
         fi
         echo "New tag: $new_tag"
         echo "NEW_TAG=$new_tag" >> $GITHUB_ENV
-  
+
     - name: Check if tag exists
       id: check_tag
       run: |
@@ -134,7 +141,7 @@ jobs:
       run: |
         git tag ${{ env.NEW_TAG }}
         git push origin -f ${{ env.NEW_TAG }}
-  
+
     - name: Build project
       run: |
         python setup.py sdist bdist_wheel
@@ -152,7 +159,7 @@ jobs:
         files: dist/my-python-project-0.1.0.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
-        
+
         asset_name: my-python-project-0.1.0.tar.gz
         asset_content_type: application/gzip
-  
+
