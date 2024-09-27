@@ -3,6 +3,7 @@ from pika.exceptions import AMQPError
 from config.config import Config
 import logging
 
+
 def setup_logging():
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')

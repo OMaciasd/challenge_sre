@@ -2,19 +2,18 @@
 
 ## **Contents**
 
-- 📥[**Post Repo in API**](#evidence-of-the-request)
-- 📝[**Introduction**](#introduction)
-- 🌐[**Ingest, Store, and Expose Data Overview**](#general-objectives)
-- 🚀[**Deploy the HTTP API**](#guide-to-configure-and-deploy-the-http-api)
-- 🧪[**Integration Tests**](#integration-tests)
-- 🖥️[**Architecture**](#architecture)
-- 🚨[**How to Contribute**](#how-to-contribute)
-- 🧩[**Assumptions**](#assumptions)
-- 🔧[**Future Improvements**](#future-improvements)
-- 🎉[**Acknowledgments, Comments, and Credits**](#acknowledgments,-comments,-and-credits)
-- 📜[**License**](#license)
+- 📥 [**Post Repo in API**](#evidence-of-the-request)
+- 📝 [**Introduction**](#introduction)
+- 🌐 [**Ingest, Store, and Expose Data Overview**](#general-objectives)
+- 🚀 [**Deploy the HTTP API**](#guide-to-configure-and-deploy-the-http-api)
+- 🧪 [**Integration Tests**](#integration-tests)
+- 📖 [**Architecture**](#architecture)
+- 🚨 [**How to Contribute**](#how-to-contribute)
+- 🔧 [**Future Improvements**](#future-improvements)
+- 🔔 [**Acknowledgments, Comments and Credits**](#acknowledgments-comments-and-credits)
+- 📜 [**License**](#license)
 
-## 📤 **Evidence of the Request**
+## 📤**Evidence of the Request**
 
 - To demonstrate that the POST request to the endpoint was successfully made, a Python script **`api.py`** was executed to send the specified data. Below is the output from the request:
 
@@ -22,7 +21,7 @@
 
 - This snapshot demonstrates how to send a POST request to the endpoint and verify the response. The response confirms that the request was received and processed successfully.
 
-## 📝 **Introduction**
+## 📝**Introduction**
 
 This project focuses on developing a system for ingesting, storing, and exposing data, specifically designed for advanced analytics. The proposed solution addresses common challenges in managing large volumes of data and provides a scalable and efficient infrastructure.
 
@@ -38,26 +37,26 @@ In a data environment that is constantly growing, organizations face the need to
 
 - **Data Access and Exposure:** It is essential that stored data is easily accessible and available for analysis and consumption by third parties in an efficient manner.
 
-## 🌐 **General Objectives**
+## 🌐**General Objectives**
 
 **The goals of this project are:**
 
-1. 📥**Data Ingestion:** Develop a robust system that uses a Pub/Sub schema to efficiently manage and process incoming data messages, ensuring scalable and reliable ingestion.
+1. 📥 **Data Ingestion:** Develop a robust system that uses a Pub/Sub schema to efficiently manage and process incoming data messages, ensuring scalable and reliable ingestion.
 
-2. 🗄️**Data Storage:** Implement a database optimized for analytical queries that allows for efficient storage of large volumes of data and supports complex analysis.
+2. 🗄️ **Data Storage:** Implement a database optimized for analytical queries that allows for efficient storage of large volumes of data and supports complex analysis.
 
-3. 🌐**Data Exposure:** Provide an HTTP endpoint that serves the stored data on demand, facilitating access by third parties and ensuring smooth integration with other systems.
+3. 🌐 **Data Exposure:** Provide an HTTP endpoint that serves the stored data on demand, facilitating access by third parties and ensuring smooth integration with other systems.
 
-## 🚀 **Guide to Configure and Deploy the HTTP API**
+## 🚀**Guide to Configure and Deploy the HTTP API**
 
 ### **Prerequisites**
 
 Before you begin, make sure you have the following installed:
 
-- [**Docker**](https://www.docker.com/get-started)
-- [**Docker Compose**](https://docs.docker.com/compose/install/)
-- [**Python**](https://www.python.org/downloads/) (*for running locally without Docker*)
-- [**pip**](https://pip.pypa.io/en/stable/)
+- 🐳 [**Docker Desktop.**](https://www.docker.com/get-started)
+- 🐍 [**Python.**](https://www.python.org/downloads/)
+- 📦 [**pip.**](https://pip.pypa.io/en/stable/)
+- ☁️ [**Terraform.**](https://www.terraform.io/downloads.html)
 
 ### **Clone the Repository**
 
@@ -77,8 +76,10 @@ cd tu_latam-challenge
    - Create a `**.env**` file in the project root using the `**.env_docker-compose_example.txt**` file as a reference:
 
      ```powershell
-     cp ./docs/examples.env_docker-compose_example.txt ./scripts/.env
+     cp ./docs/examples/.env_example.txt ./scripts/.env
+     cd /scripts
      .\load_env.ps1
+
      ```
 
     ![powershell](./docs/assets/images/infrastructure/powershell.png)
@@ -141,7 +142,7 @@ You should receive a response indicating that the API is up and running.
 
 - Ensure to follow best practices for security and scalability.
 
-## 🧩 **Project Structure**
+## 🧩**Project Structure**
 
 During the implementation of the solution, the following assumptions were made:
 
@@ -151,7 +152,7 @@ During the implementation of the solution, the following assumptions were made:
 
 - **Dependencies**: The project depends on certain libraries specified in the **`requirements.txt`** file. It is assumed that these libraries are available in the specified versions.
 
-## 🚀 CI/CD Flow
+## 🚀CI/CD Flow
 
 The CI/CD pipeline for this project has been implemented using GitHub Actions to automate the continuous integration and deployment process of the API to the cloud. Below is a basic description of the flow:
 
@@ -183,7 +184,7 @@ The CI/CD pipeline for this project has been implemented using GitHub Actions to
 
    - Notifications email are configured to inform the team about the deployment status.
 
-## 🧪 Integration Tests
+## 🧪Integration Tests
 
 ### Description of Integration Tests
 Integration tests have been implemented to ensure that the different components of the system function correctly when combined. These tests verify the interaction between the data ingestion, storage, and exposure services, ensuring the system operates as expected under normal and load conditions.
@@ -196,17 +197,17 @@ The integration tests include:
 
 - **Error and Recovery Tests:** Simulate failures in specific components to ensure the system can handle errors and recover appropriately without losing data or compromising integrity.
 
-## 🖥️ **Architecture**
+## 📖**Architecture**
 
 For detailed information on the system's architecture, including design decisions and component interactions, refer to the [Architecture Guide](./docs/guides/ARCHITECTURE.md).
 
-## 🚨 **How to Contribute**
+## 🚨**How to Contribute**
 
 To contribute to this project, please check out our [Contribution Guide](./docs/guides/CONTRIBUTING.md) for instructions on setting up your development environment and the process for submitting contributions.
 
 Describe how to contribute to the project’s documentation
 
-## 🔧 **Future Improvements**
+## 🔧**Future Improvements**
 
 While the current solution addresses the core functionalities required, there are several areas where enhancements could be made to further optimize and extend the system:
 
@@ -251,7 +252,7 @@ While the current solution addresses the core functionalities required, there ar
   - Regular security audits and vulnerability assessments.
   - Implementing access controls and user authentication mechanisms.
 
-## 🎉 **Acknowledgments, Comments, and Credits**
+## 🔔**Acknowledgments, Comments, and Credits**
 
 This project is the result of collective effort and contributions from various sources. I would like to acknowledge the following:
 
@@ -279,7 +280,7 @@ This project is the result of collective effort and contributions from various s
 
 Thank you for considering my submission. If you have any questions or need further clarification, please feel free to reach out to me via [email](mailto:omaciasnarvaez@gmail.com).
 
-## 📜 **License**
+## 📜**License**
 
 - This project is licensed under the MIT License. See the LICENSE file for more details.
 

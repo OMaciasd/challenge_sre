@@ -12,13 +12,13 @@ resource "docker_container" "postgres" {
 
   ports {
     internal = 5432
-    external = 5433
+    external = 5432
   }
 
   env = [
-    "POSTGRES_USER=myuser",
-    "POSTGRES_PASSWORD=mypassword",
-    "POSTGRES_DB=mydatabase"
+    "POSTGRES_USER=${var.postgres_user}",
+    "POSTGRES_PASSWORD=${var.postgres_password}",
+    "POSTGRES_DB=${var.postgres_db}"
   ]
 
   networks_advanced {
@@ -39,6 +39,12 @@ resource "docker_container" "api" {
     external = 50010
   }
 
+  env = [
+    "DATABASE_URL=${var.postgres_url}",
+    "RABBITMQ_URL=${var.rabbitmq_uri}"
+  ]
+
+  restart = "always"
   networks_advanced {
     name = docker_network.my_network.name
   }
